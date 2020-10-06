@@ -127,6 +127,66 @@
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "20.03"; # Did you read the comment?
-  
-}
+  services.thermald = {
+    enable = true;
+    configFile = builtins.toFile "thermal-conf.xml" ''
+      <?xml version="1.0"?>
+      <ThermalConfiguration>
+        <Platform>
+          <Name>Keep CPU below 80C</Name>
+          <ProductName>*</ProductName>
+          <Preference>quiet</Preference>
 
+          <ThermalZones>
+            <ThermalZone>
+              <Type>x86_pkg_temp</Type>
+              <TripPoints>
+                <TripPoint>
+                  <SensorType>x86_pkg_temp</SensorType>
+                  <Type>passive</Type>
+                  <Temperature>80000</Temperature>
+
+                  <CoolingDevice>
+                    <Index>1</Index>
+                    <Type>rapl_controller</Type>
+                    <Influence>50</Influence>
+                    <SamplingPeriod>10</SamplingPeriod>
+                  </CoolingDevice>
+
+                  <CoolingDevice>
+                    <Index>2</Index>
+                    <Type>intel_pstate</Type>
+                    <Influence>40</Influence>
+                    <SamplingPeriod>10</SamplingPeriod>
+                  </CoolingDevice>
+
+                  <CoolingDevice>
+                    <Index>3</Index>
+                    <Type>intel_powerclamp</Type>
+                    <Influence>30</Influence>
+                    <SamplingPeriod>10</SamplingPeriod>
+                  </CoolingDevice>
+
+                  <CoolingDevice>
+                    <Index>4</Index>
+                    <Type>cpufreq</Type>
+                    <Influence>20</Influence>
+                    <SamplingPeriod>8</SamplingPeriod>
+                  </CoolingDevice>
+
+                  <CoolingDevice>
+                    <Index>5</Index>
+                    <Type>Processor</Type>
+                    <Influence>10</Influence>
+                    <SamplingPeriod>5</SamplingPeriod>
+                  </CoolingDevice>
+                </TripPoint>
+              </TripPoints>
+            </ThermalZone>
+          </ThermalZones>
+        </Platform>
+      </ThermalConfiguration>
+    '';
+  };
+}
+   
