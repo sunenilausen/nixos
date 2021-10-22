@@ -14,6 +14,7 @@
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+  boot.kernel.sysctl = { "vm.swappiness" = 0; };
 
   networking.hostName = "sunix"; # Define your hostname.
   #networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -31,6 +32,7 @@
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
   networking.extraHosts =
   ''
+    127.0.0.1 schultzcampus.test
     127.0.0.1 advokurser.test
     127.0.0.1 revikurser.test
   '';  
@@ -89,7 +91,7 @@
       layout = "us";
       displayManager.gdm.enable = true;
       displayManager.gdm.wayland = false;
-      desktopManager.gnome3.enable = true;
+      desktopManager.gnome.enable = true;
     };
 
     dbus.packages = [ pkgs.gnome3.dconf ];
@@ -127,6 +129,11 @@
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "20.03"; # Did you read the comment?
+
+  # Disable power profile because we are using TLD  
+  services.power-profiles-daemon.enable = false;
+  
+  # Custom thermal profile
   services.thermald = {
     enable = true;
     configFile = builtins.toFile "thermal-conf.xml" ''
@@ -188,5 +195,11 @@
       </ThermalConfiguration>
     '';
   };
+
+  # nixdirenv requires this to stop nix from garbage collecting its stuff
+  nix.extraOptions = ''
+    keep-outputs = true
+    keep-derivations = true
+  '';
 }
    
